@@ -37,7 +37,7 @@ task ahb_master_monitor::run_phase(uvm_phase phase);
 	
 	forever begin
 		vif.ahb_master_monitor(txn);
-		
+		//Comment 2
 		//Send txn to subscribers
 		monitor_ap.write(txn);
 		//Adding comment
