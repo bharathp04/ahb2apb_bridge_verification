@@ -32,6 +32,10 @@ class ahb_master_transaction extends uvm_sequence_item;
 		HADDR.size > 0;
 	}
 	
+	constraint wdata_size{
+		HWDATA.size == HADDR.size;
+	}
+	
 	//Add kb_boundary constraint
 	
 	constraint addr_boundary{
@@ -56,12 +60,107 @@ class ahb_master_transaction extends uvm_sequence_item;
 		}
 	}
 	
+	constraint addr_value_wrap{
+		if((HBURST == WRAP4) && (HSIZE == BYTE)){
+			foreach(HADDR[i]){
+				if(i != 0){
+					HADDR[i][1:0] == HADDR[i-1][1:0] + 1;
+					HADDR[i][31:2] == HADDR[i-1][31:2];
+				}
+			}
+		}
+		
+		if((HBURST == WRAP4) && (HSIZE == HALFWORD)){
+			foreach(HADDR[i]){
+				if(i != 0){
+					HADDR[i][2:0] == HADDR[i-1][2:0] + 2;
+					HADDR[i][31:3] == HADDR[i-1][31:3];
+				}
+			}
+		}
+		
+		if((HBURST == WRAP4) && (HSIZE == WORD)){
+			foreach(HADDR[i]){
+				if(i != 0){
+					HADDR[i][3:0] == HADDR[i-1][3:0] + 4;
+					HADDR[i][31:4] == HADDR[i-1][31:4];
+				}
+			}
+		}
+		
+		if((HBURST == WRAP8) && (HSIZE == BYTE)){
+			foreach(HADDR[i]){
+				if(i != 0){
+					HADDR[i][2:0] == HADDR[i-1][2:0] + 1;
+					HADDR[i][31:3] == HADDR[i-1][31:3];
+				}
+			}
+		}
+		
+		if((HBURST == WRAP8) && (HSIZE == HALFWORD)){
+			foreach(HADDR[i]){
+				if(i != 0){
+					HADDR[i][3:0] == HADDR[i-1][3:0] + 2;
+					HADDR[i][31:4] == HADDR[i-1][31:4];
+				}
+			}
+		}
+		
+		if((HBURST == WRAP8) && (HSIZE == WORD)){
+			foreach(HADDR[i]){
+				if(i != 0){
+					HADDR[i][4:0] == HADDR[i-1][4:0] + 4;
+					HADDR[i][31:5] == HADDR[i-1][31:5];
+				}
+			}
+		}
+		
+		if((HBURST == WRAP16) && (HSIZE == BYTE)){
+			foreach(HADDR[i]){
+				if(i != 0){
+					HADDR[i][3:0] == HADDR[i-1][3:0] + 1;
+					HADDR[i][31:4] == HADDR[i-1][31:4];
+				}
+			}
+		}
+		
+		if((HBURST == WRAP16) && (HSIZE == HALFWORD)){
+			foreach(HADDR[i]){
+				if(i != 0){
+					HADDR[i][4:0] == HADDR[i-1][4:0] + 2;
+					HADDR[i][31:5] == HADDR[i-1][31:5];
+				}
+			}
+		}
+		
+		if((HBURST == WRAP16) && (HSIZE == WORD)){
+			foreach(HADDR[i]){
+				if(i != 0){
+					HADDR[i][5:0] == HADDR[i-1][5:0] + 4;
+					HADDR[i][31:6] == HADDR[i-1][31:6];
+				}
+			}
+		}
+	}
 	
+	constraint trans_type{
+		if(HBURST == SINGLE){
+			HTRANS.size == 1;
+			HTRANS[0] inside {IDLE, NONSEQ};
+		}
+		else{
+			HTRANS.size == HADDR.size;
+			foreach(HTRANS[i]){
+				if(i == 0)
+					HTRANS[i] == NONSEQ;
+				else
+					HTRANS[i] == SEQ;
+			}
+		}
+	}
 	
 	function new(string name= "");
 		super.new(name);
 	endfunction
-	
-	//function string convert2string;
 
 endclass: ahb_master_transaction
