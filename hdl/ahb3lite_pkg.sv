@@ -89,9 +89,6 @@ package ahb3lite_pkg;
   //HRESP
   parameter       HRESP_OKAY  = 1'b0,
                   HRESP_ERROR = 1'b1;
-	
-	parameter HADDR_SIZE= 32;
-	parameter HDATA_SIZE= 32;
 
 endpackage
 
