@@ -17,105 +17,74 @@ interface ahb_if;
 	logic HREADY;
 	logic HRESP;
 	
-	task ahb_master_driver(input logic [2:0]burst_mode,
+	task ahb_master_driver(input logic [2:0]trans_type,
+		logic [2:0]burst_type,
 		logic [2:0]trans_size,
-		logic rw_sig,
-		);
-		fork
-			begin: driver
-				wait(HRESETn);
-				disable resp_handler;
-				disable rst_handler;
-				drive();
-			end: driver
-			
-			begin: resp_handler
-				wait(HRESETn);
-				
-				//If error response, change the transfer type to idle
-				wait(HRESP);
-				disable driver;
-				disable rst_handler;
-				@(posedge HCLK);
-				HTRANS<= HTRANS_IDLE;
-			end: resp_handler
-			
-			begin: rst_handler
-				forever begin
-					wait(!HRESETn);
-					$display("Reset Detected...");
-					disable driver;
-					disable resp_handler;
-					HTRANS<= 0;
-					HBURST<= 0;
-					HSIZE<= 0;
-					HWRITE<= 0;
-					HADDR<= 0;
-					HWDATA<= 0;
-					
-					@(posedge HCLK);
-					if(HRESETn) begin
-						disable rst_handler;
-					end
-				end
-			end: rst_handler
-		join
-	endtask: ahb_master_driver
-	
-	task drive;
-		int j= 0; //To iterate through transfer type
-		$display("Transaction from AHB Master...");
+		logic rw,
+		logic [HADDR_SIZE-1:0]addr,
+		logic [HADDR_SIZE-1:0]wdata
+	);
 		
-		//Transfer Control signals
-		HBURST<= burst_mode;
-		HSIZE<= trans_size;
-		HWRITE<= rw_sig;
+		@(posedge HCLK);
 		
-		//Transfer an address and corresponding trans_type every cycle
-		foreach(address[i]) begin
-			HADDR<= address[i];
-			
-			//While transfer type is busy, maintain same address and don't drive data
-			while(trans_type[j] == HTRANS_BUSY) begin
-				HTRANS<= trans_type[j];
-				@(posedge HCLK);
-				j<= j+1;
-			end
-			
-			HTRANS<= trans_type[j];
-			
-			//Wait for HREADY to go low indicating previous transfer is complete
-			while(!HREADY) @(posedge HCLK);
-			
-			//Write data if write transaction
-			if(rw_sig) begin
-				HWDATA<= w_data[i];
-			end
-			
-			
+		//Handle reset
+		if(!HRESETn) begin
+			$display("AHB Master: Reset Detected...");
+			HTRANS<= 0;
+			HBURST<= 0;
+			HSIZE<= 0;
+			HWRITE<= 0;
+			HADDR<= 0;
+			HWDATA<= 0;
 		end
-	endtask: drive
+		
+		//Handle response from slave
+		else if(HRESP == 1) begin
+			$display("AHB Master: Error response from slave...");
+		end
+		
+		//Drive transaction to slave
+		else begin
+			$display("AHB Master: Driving transaction to slave...");
+			HTRANS<= trans_type;
+			HBURST<= burst_type;
+			HSIZE<= trans_size;
+			HWRITE<= rw;
+			HADDR<= addr;
+			
+			//Drive wdata when slave has completed its previous transaction
+			if(!HREADY && rw) begin
+				HWDATA<= wdata;
+			end
+		end
+		
+	endtask
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	task ahb_master_monitor(output logic [2:0]trans_type,
+		logic [2:0]burst_type,
+		logic [2:0]trans_size,
+		logic rw,
+		logic [HADDR_SIZE-1:0]addr,
+		logic [HADDR_SIZE-1:0]wdata,
+		logic [HADDR_SIZE-1:0]rdata
+	);
+		
+		@(posedge HCLK);
+		
+		if(HRESETn) begin
+			trans_type<= HTRANS;
+			burst_type<= HBURST;
+			trans_size<= HSIZE;
+			rw<= HWRITE;
+			addr<= HADDR;
+			if(rw) begin
+				wdata<= HWDATA;
+			end
+			else begin
+				rdata<= HRDATA;
+			end
+		end
+	endtask
 	
 endinterface

@@ -35,9 +35,10 @@ task ahb_master_driver::run_phase(uvm_phase phase);
 	
 	forever begin
 		seq_item_port.get(txn);
-		
-		//Call task from interface
-		vif.ahb_master_driver(txn);
+		foreach(txn.HADDR[i]) begin
+			//Call task from interface
+			vif.ahb_master_driver(txn.HTRANS[i], txn.HBURST, txn.HSIZE, txn.HWRITE, txn.HADDR[i], txn.HWDATA[i]);
+		end
 		
 	end
 endtask: run_phase
