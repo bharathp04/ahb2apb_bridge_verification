@@ -8,7 +8,7 @@ class ahb_master_idle_seq extends uvm_sequence #(ahb_master_transaction);
 	task body();
 		txn= ahb_master_transaction::type_id::create("txn");
 		start_item(txn);
-		assert(txn.randomize() with {HBURST == 0; HTRANS[0] == 0;});
+		assert(txn.randomize() with {HBURST == SINGLE; HTRANS[0] == IDLE;});
 		finish_item(txn);
 	endtask
 endclass
@@ -23,7 +23,7 @@ class ahb_master_wrap_seq extends uvm_sequence #(ahb_master_transaction);
 	task body();
 		txn= ahb_master_transaction::type_id::create("txn");
 		start_item(txn);
-		assert(txn.randomize() with {HBURST inside{HBURST_WRAP4, HBURST_WRAP8, HBURST_WRAP16};});
+		assert(txn.randomize() with {HBURST inside{WRAP4, WRAP8, WRAP16};});
 		finish_item(txn);
 	endtask
 	
@@ -39,7 +39,7 @@ class ahb_master_incr_seq extends uvm_sequence #(ahb_master_transaction);
 	task body();
 		txn= ahb_master_transaction::type_id::create("txn");
 		start_item(txn);
-		assert(txn.randomize() with {HBURST inside{HBURST_INCR4, HBURST_INCR8, HBURST_INCR16};});
+		assert(txn.randomize() with {HBURST inside{INCR4, INCR8, INCR16};});
 		finish_item(txn);
 	endtask
 endclass
