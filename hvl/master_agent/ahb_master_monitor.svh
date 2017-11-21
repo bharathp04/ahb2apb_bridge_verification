@@ -6,10 +6,10 @@ class ahb_master_monitor extends uvm_monitor;
 	
 	//Declare config class which has the virtual interface and optional other
 	//dut info
-	ahb_master_config dut_config;
+	ahb_apb_config iface_config;
 	
 	//Declare virtual interface
-	virtual ahb_interface vif;
+	virtual ahb_if vif;
 	
 	extern function new(string name, uvm_component parent);
 	extern function void build_phase(uvm_phase phase);
@@ -27,9 +27,9 @@ function void ahb_master_monitor::build_phase(uvm_phase phase);
 	monitor_ap= new("monitor_ap", this);
 	
 	//Get virtual interface from parent
-	assert(uvm_config_db #(ahb_master_config)::get(this, "", "dut_config", dut_config));
+	assert(uvm_config_db #(ahb_apb_config)::get(this, "", "iface_config", iface_config));
 	
-	vif= dut_config.vif;
+	vif= iface_config.ahb_vif;
 endfunction
 
 task ahb_master_monitor::run_phase(uvm_phase phase);

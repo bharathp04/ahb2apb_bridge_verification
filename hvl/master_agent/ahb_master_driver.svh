@@ -3,10 +3,10 @@ class ahb_master_driver extends uvm_driver #(ahb_master_transaction);
 	
 	//Declare config class which has the virtual interface and optional other
 	//dut info
-	ahb_master_config dut_config;
+	ahb_apb_config iface_config;
 	
 	//Declare virtual interface
-	virtual ahb_interface vif;
+	virtual ahb_if vif;
 	
 	extern function new(string name, uvm_component parent);
 	extern function void build_phase(uvm_phase phase);
@@ -22,12 +22,12 @@ function void ahb_master_driver::build_phase(uvm_phase phase);
 	super.build_phase(phase);
 	
 	//Get virtual interface
-	assert(uvm_config_db #(ahb_master_config)::get(this, "", "dut_config", dut_config))
+	assert(uvm_config_db #(ahb_apb_config)::get(this, "", "iface_config", iface_config))
 	else begin 
-		`uvm_fatal(get_full_name(), "Cannot get vif from uvm_config_db");
+		`uvm_fatal(get_full_name(), "Cannot get iface_config from uvm_config_db");
 	end
 	
-	vif= dut_config.vif;
+	vif= iface_config.ahb_vif;
 endfunction: build_phase
 
 task ahb_master_driver::run_phase(uvm_phase phase);
