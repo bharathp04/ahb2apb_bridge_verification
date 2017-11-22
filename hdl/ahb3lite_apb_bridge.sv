@@ -6,36 +6,40 @@ module ahb3lite_apb_bridge #(
   parameter SYNC_DEPTH =  3
 )
 (
-  //AHB Slave Interface
-  input                         HRESETn,
-                                HCLK,
-  input                         HSEL,
-  input      [HADDR_SIZE  -1:0] HADDR,
-  input      [HDATA_SIZE  -1:0] HWDATA,
-  output reg [HDATA_SIZE  -1:0] HRDATA,
-  input                         HWRITE,
-  input      [             2:0] HSIZE,
-  input      [             2:0] HBURST,
-  input      [             3:0] HPROT,
-  input      [             1:0] HTRANS,
-  input                         HMASTLOCK,
-  output reg                    HREADYOUT,
-  input                         HREADY,
-  output reg                    HRESP,
 
-  //APB Master Interface
-  input                         PRESETn,
-                                PCLK,
-  output reg                    PSEL,
-  output reg                    PENABLE,
-  output reg [             2:0] PPROT,
-  output reg                    PWRITE,
-  output reg [PDATA_SIZE/8-1:0] PSTRB,
-  output reg [PADDR_SIZE  -1:0] PADDR,
-  output reg [PDATA_SIZE  -1:0] PWDATA,
-  input      [PDATA_SIZE  -1:0] PRDATA,
-  input                         PREADY,
-  input                         PSLVERR
+	ahb_if ahb_iface;
+	apb_if apb_iface;
+	
+  ////AHB Slave Interface
+  //input                         ahb_iface.HRESETn,
+  //                              ahb_iface.HCLK,
+  //input                         ahb_iface.HSEL,
+  //input      [HADDR_SIZE  -1:0] ahb_iface.HADDR,
+  //input      [HDATA_SIZE  -1:0] ahb_iface.HWDATA,
+  //output reg [HDATA_SIZE  -1:0] ahb_iface.HRDATA,
+  //input                         ahb_iface.HWRITE,
+  //input      [             2:0] ahb_iface.HSIZE,
+  //input      [             2:0] ahb_iface.HBURST,
+  //input      [             3:0] ahb_iface.HPROT,
+  //input      [             1:0] ahb_iface.HTRANS,
+  //input                         ahb_iface.HMASTLOCK,
+  //output reg                    ahb_iface.HREADYOUT,
+  //input                         ahb_iface.HREADY,
+  //output reg                    ahb_iface.HRESP,
+  //
+  ////APB Master Interface
+  //input                         apb_iface.PRESETn,
+  //                              apb_iface.PCLK,
+  //output reg                    apb_iface.PSEL,
+  //output reg                    apb_iface.PENABLE,
+  //output reg [             2:0] apb_iface.PPROT,
+  //output reg                    apb_iface.PWRITE,
+  //output reg [PDATA_SIZE/8-1:0] apb_iface.PSTRB,
+  //output reg [PADDR_SIZE  -1:0] apb_iface.PADDR,
+  //output reg [PDATA_SIZE  -1:0] apb_iface.PWDATA,
+  //input      [PDATA_SIZE  -1:0] apb_iface.PRDATA,
+  //input                         apb_iface.PREADY,
+  //input                         apb_iface.PSLVERR
 );
   //////////////////////////////////////////////////////////////////
   //
@@ -47,7 +51,7 @@ module ahb3lite_apb_bridge #(
   typedef enum logic [1:0] {ST_APB_IDLE=2'b00, ST_APB_SETUP=2'b01, ST_APB_TRANSFER=2'b10} apb_fsm_states;
 
 
-  //PPROT
+  //apb_iface.PPROT
   localparam [2:0] PPROT_NORMAL      = 3'b000,
                    PPROT_PRIVILEGED  = 3'b001,
                    PPROT_SECURE      = 3'b000,
@@ -66,7 +70,7 @@ module ahb3lite_apb_bridge #(
   //
   initial
   begin
-      //check if HRDATA/HWDATA/PRDATA/PWDATA are multiples of bytes
+      //check if ahb_iface.HRDATA/ahb_iface.HWDATA/apb_iface.PRDATA/apb_iface.PWDATA are multiples of bytes
       a1: assert (HDATA_SIZE % 8 ==0)
           else $error("HDATA_SIZE must be an integer multiple of bytes (8bits)");
 
@@ -124,7 +128,7 @@ module ahb3lite_apb_bridge #(
   //number of transfer cycles (AMBA-beats) on APB interface
   logic [               6:0] apb_beat_cnt;
 
-  //running offset in HWDATA
+  //running offset in ahb_iface.HWDATA
   logic [               9:0] apb_beat_data_offset;
 
 
@@ -135,16 +139,16 @@ module ahb3lite_apb_bridge #(
   task ahb_no_transfer;
      ahb_fsm   <= ST_AHB_IDLE;
 
-     HREADYOUT <= 1'b1;
-     HRESP     <= HRESP_OKAY;
+     ahb_iface.HREADYOUT <= 1'b1;
+     ahb_iface.HRESP     <= HRESP_OKAY;
   endtask //ahb_no_transfer
 
 
   task ahb_prep_transfer;
      ahb_fsm    <= ST_AHB_TRANSFER;
 
-     HREADYOUT  <= 1'b0; //hold off master
-     HRESP      <= HRESP_OKAY;
+     ahb_iface.HREADYOUT  <= 1'b0; //hold off master
+     ahb_iface.HRESP      <= HRESP_OKAY;
      ahb_treq   <= 1'b1; //request data transfer
   endtask //ahb_prep_transfer
 
@@ -172,7 +176,7 @@ module ahb3lite_apb_bridge #(
   function logic [6:0] address_mask;
     input integer data_size;
 
-    //Which bits in HADDR should be taken into account?
+    //Which bits in ahb_iface.HADDR should be taken into account?
     case (data_size)
           1024: address_mask = 7'b111_1111; 
            512: address_mask = 7'b011_1111;
@@ -204,7 +208,7 @@ module ahb3lite_apb_bridge #(
     logic [127:0] full_pstrb;
     logic [  6:0] paddr_masked;
 
-    //get number of active lanes for a 1024bit databus (max width) for this HSIZE
+    //get number of active lanes for a 1024bit databus (max width) for this ahb_iface.HSIZE
     case (hsize)
        HSIZE_B1024: full_pstrb = 'hffff_ffff_ffff_ffff_ffff_ffff_ffff_ffff; 
        HSIZE_B512 : full_pstrb = 'hffff_ffff_ffff_ffff;
@@ -219,7 +223,7 @@ module ahb3lite_apb_bridge #(
     //generate masked address
     paddr_masked = paddr & address_mask(PDATA_SIZE);
 
-    //create PSTRB
+    //create apb_iface.PSTRB
     pstrb = full_pstrb[PDATA_SIZE/8-1:0] << paddr_masked;
   endfunction //pstrb
 
@@ -232,13 +236,13 @@ module ahb3lite_apb_bridge #(
   /*
    * AHB Statemachine
    */
-  always @(posedge HCLK,negedge HRESETn)
-    if (!HRESETn)
+  always @(posedge ahb_iface.HCLK,negedge ahb_iface.HRESETn)
+    if (!ahb_iface.HRESETn)
     begin
         ahb_fsm    <= ST_AHB_IDLE;
 
-        HREADYOUT  <= 1'b1;
-        HRESP      <= HRESP_OKAY;
+        ahb_iface.HREADYOUT  <= 1'b1;
+        ahb_iface.HRESP      <= HRESP_OKAY;
 
         ahb_treq   <= 1'b0;
         ahb_haddr  <=  'h0;
@@ -254,22 +258,22 @@ module ahb3lite_apb_bridge #(
            ST_AHB_IDLE:
            begin
                //store basic parameters
-               ahb_haddr  <= HADDR;
-               ahb_hwrite <= HWRITE;
-               ahb_hprot  <= HPROT;
-               ahb_hsize  <= HSIZE;
+               ahb_haddr  <= ahb_iface.HADDR;
+               ahb_hwrite <= ahb_iface.HWRITE;
+               ahb_hprot  <= ahb_iface.HPROT;
+               ahb_hsize  <= ahb_iface.HSIZE;
 
-               if (HSEL && HREADY)
+               if (ahb_iface.HSEL && ahb_iface.HREADY)
                begin
                    /*
                     * This (slave) is selected ... what kind of transfer is this?
                     */
-                   case (HTRANS)
+                   case (ahb_iface.HTRANS)
                       HTRANS_IDLE  : ahb_no_transfer;
                       HTRANS_BUSY  : ahb_no_transfer;
                       HTRANS_NONSEQ: ahb_prep_transfer;
                       HTRANS_SEQ   : ahb_prep_transfer;
-                   endcase //HTRANS
+                   endcase //ahb_iface.HTRANS
                end
                else ahb_no_transfer;
            end
@@ -283,43 +287,43 @@ module ahb3lite_apb_bridge #(
                 */
 
                //assign read data
-               HRDATA <= apb_prdata; 
+               ahb_iface.HRDATA <= apb_prdata; 
 
-               //indicate transfer done. Normally HREADYOUT = '1', HRESP=OKAY
-               //HRESP=ERROR requires 2 cycles
+               //indicate transfer done. Normally ahb_iface.HREADYOUT = '1', ahb_iface.HRESP=OKAY
+               //ahb_iface.HRESP=ERROR requires 2 cycles
                if (apb_pslverr)
                begin
-                   HREADYOUT <= 1'b0;
-                   HRESP     <= HRESP_ERROR;
+                   ahb_iface.HREADYOUT <= 1'b0;
+                   ahb_iface.HRESP     <= HRESP_ERROR;
                    ahb_fsm   <= ST_AHB_ERROR;
                end
                else
                begin
-                   HREADYOUT <= 1'b1;
-                   HRESP     <= HRESP_OKAY;
+                   ahb_iface.HREADYOUT <= 1'b1;
+                   ahb_iface.HRESP     <= HRESP_OKAY;
                    ahb_fsm   <= ST_AHB_IDLE;
                end
            end
            else
            begin
-               HREADYOUT <= 1'b0; //transfer still in progress
+               ahb_iface.HREADYOUT <= 1'b0; //transfer still in progress
            end
 
            ST_AHB_ERROR:
            begin
                //2nd cycle of error response
                ahb_fsm   <= ST_AHB_IDLE;
-               HREADYOUT <= 1'b1;
+               ahb_iface.HREADYOUT <= 1'b1;
            end
         endcase //ahb_fsm
     end
 
 
-  always @(posedge HCLK)
-    latch_ahb_hwdata <= HSEL & HREADY & HWRITE & ((HTRANS == HTRANS_NONSEQ) || (HTRANS == HTRANS_SEQ));
+  always @(posedge ahb_iface.HCLK)
+    latch_ahb_hwdata <= ahb_iface.HSEL & ahb_iface.HREADY & ahb_iface.HWRITE & ((ahb_iface.HTRANS == HTRANS_NONSEQ) || (ahb_iface.HTRANS == HTRANS_SEQ));
 
-  always @(posedge HCLK)
-    if (latch_ahb_hwdata) ahb_hwdata <= HWDATA;
+  always @(posedge ahb_iface.HCLK)
+    if (latch_ahb_hwdata) ahb_hwdata <= ahb_iface.HWDATA;
 
 
 
@@ -327,13 +331,13 @@ module ahb3lite_apb_bridge #(
    * Clock domain crossing ...
    */
   //AHB -> APB
-  always @(posedge HCLK,negedge HRESETn)
-    if      (!HRESETn ) treq_toggle <= 1'b0;
+  always @(posedge ahb_iface.HCLK,negedge ahb_iface.HRESETn)
+    if      (!ahb_iface.HRESETn ) treq_toggle <= 1'b0;
     else if ( ahb_treq) treq_toggle <= ~treq_toggle;
 
 
-  always @(posedge PCLK,negedge PRESETn)
-    if (!PRESETn) treq_sync <= 'h0;
+  always @(posedge apb_iface.PCLK,negedge apb_iface.PRESETn)
+    if (!apb_iface.PRESETn) treq_sync <= 'h0;
     else          treq_sync <= {treq_sync[SYNC_DEPTH-2:0], treq_toggle};
 
 
@@ -341,13 +345,13 @@ module ahb3lite_apb_bridge #(
 
 
   //APB -> AHB
-  always @(posedge PCLK,negedge PRESETn)
-    if      (!PRESETn ) tack_toggle <= 1'b0;
+  always @(posedge apb_iface.PCLK,negedge apb_iface.PRESETn)
+    if      (!apb_iface.PRESETn ) tack_toggle <= 1'b0;
     else if ( apb_tack) tack_toggle <= ~tack_toggle;
 
 
-  always @(posedge HCLK,negedge HRESETn)
-    if (!HRESETn) tack_sync <= 'h0;
+  always @(posedge ahb_iface.HCLK,negedge ahb_iface.HRESETn)
+    if (!ahb_iface.HRESETn) tack_sync <= 'h0;
     else          tack_sync <= {tack_sync[SYNC_DEPTH-2:0], tack_toggle};
 
 
@@ -357,19 +361,19 @@ module ahb3lite_apb_bridge #(
   /*
    * APB Statemachine
    */
-  always @(posedge PCLK,negedge PRESETn)
-    if (!PRESETn)
+  always @(posedge apb_iface.PCLK,negedge apb_iface.PRESETn)
+    if (!apb_iface.PRESETn)
     begin
         apb_fsm        <= ST_APB_IDLE;
         apb_tack       <= 1'b0;
 
-        PSEL    <= 1'b0;
-        PPROT   <= 1'b0;
-        PADDR   <= 'h0;
-        PWRITE  <= 1'b0;
-        PENABLE <= 1'b0;
-        PWDATA  <= 'h0;
-        PSTRB   <= 'h0;
+        apb_iface.PSEL    <= 1'b0;
+        apb_iface.PPROT   <= 1'b0;
+        apb_iface.PADDR   <= 'h0;
+        apb_iface.PWRITE  <= 1'b0;
+        apb_iface.PENABLE <= 1'b0;
+        apb_iface.PWDATA  <= 'h0;
+        apb_iface.PSTRB   <= 'h0;
     end
     else
     begin
@@ -381,14 +385,14 @@ module ahb3lite_apb_bridge #(
              begin
                  apb_fsm              <= ST_APB_SETUP;
 
-                 PSEL                 <= 1'b1;
-                 PENABLE              <= 1'b0;
-                 PPROT                <= ((ahb_hprot & HPROT_DATA      ) ? PPROT_DATA       : PPROT_INSTRUCTION) |
+                 apb_iface.PSEL                 <= 1'b1;
+                 apb_iface.PENABLE              <= 1'b0;
+                 apb_iface.PPROT                <= ((ahb_hprot & HPROT_DATA      ) ? PPROT_DATA       : PPROT_INSTRUCTION) |
                                          ((ahb_hprot & HPROT_PRIVILEGED) ? PPROT_PRIVILEGED : PPROT_NORMAL     );
-                 PADDR                <= ahb_haddr[PADDR_SIZE-1:0];
-                 PWRITE               <= ahb_hwrite;
-                 PWDATA               <= ahb_hwdata >> data_offset(ahb_haddr);
-                 PSTRB                <= ahb_hwrite & pstrb(ahb_hsize,ahb_haddr[PADDR_SIZE-1:0]); //TODO: check/sim
+                 apb_iface.PADDR                <= ahb_haddr[PADDR_SIZE-1:0];
+                 apb_iface.PWRITE               <= ahb_hwrite;
+                 apb_iface.PWDATA               <= ahb_hwdata >> data_offset(ahb_haddr);
+                 apb_iface.PSTRB                <= ahb_hwrite & pstrb(ahb_hsize,ahb_haddr[PADDR_SIZE-1:0]); //TODO: check/sim
 
                  apb_prdata           <= 'h0;                                   //clear prdata
                  apb_beat_cnt         <= apb_beats(ahb_hsize);
@@ -397,23 +401,23 @@ module ahb3lite_apb_bridge #(
 
            ST_APB_SETUP:
              begin
-                 //retain all signals and assert PENABLE
+                 //retain all signals and assert apb_iface.PENABLE
                  apb_fsm <= ST_APB_TRANSFER;
-                 PENABLE <= 1'b1;
+                 apb_iface.PENABLE <= 1'b1;
              end
 
            ST_APB_TRANSFER:
-             if (PREADY)
+             if (apb_iface.PREADY)
              begin
                  apb_beat_cnt         <= apb_beat_cnt -1;
                  apb_beat_data_offset <= apb_beat_data_offset + PDATA_SIZE;
 
-                 apb_prdata           <= (apb_prdata << PDATA_SIZE) | (PRDATA << data_offset(ahb_haddr));//TODO: check/sim
-                 apb_pslverr          <= PSLVERR;
+                 apb_prdata           <= (apb_prdata << PDATA_SIZE) | (apb_iface.PRDATA << data_offset(ahb_haddr));//TODO: check/sim
+                 apb_pslverr          <= apb_iface.PSLVERR;
 
-                 PENABLE              <= 1'b0;
+                 apb_iface.PENABLE              <= 1'b0;
 
-                 if (PSLVERR || ~|apb_beat_cnt)
+                 if (apb_iface.PSLVERR || ~|apb_beat_cnt)
                  begin
                      /*
                       * Transfer complete
@@ -422,7 +426,7 @@ module ahb3lite_apb_bridge #(
                       */
                      apb_fsm  <= ST_APB_IDLE;
                      apb_tack <= 1'b1;
-                     PSEL     <= 1'b0;
+                     apb_iface.PSEL     <= 1'b0;
                  end
                  else
                  begin
@@ -432,9 +436,9 @@ module ahb3lite_apb_bridge #(
                       */
                      apb_fsm       <= ST_APB_SETUP;
 
-                     PADDR  <= PADDR + (1 << ahb_hsize);
-                     PWDATA <= ahb_hwdata >> apb_beat_data_offset;
-                     PSTRB  <= ahb_hwrite & pstrb(ahb_hsize,PADDR + (1 << ahb_hsize));
+                     apb_iface.PADDR  <= apb_iface.PADDR + (1 << ahb_hsize);
+                     apb_iface.PWDATA <= ahb_hwdata >> apb_beat_data_offset;
+                     apb_iface.PSTRB  <= ahb_hwrite & pstrb(ahb_hsize,apb_iface.PADDR + (1 << ahb_hsize));
                  end
              end
         endcase
