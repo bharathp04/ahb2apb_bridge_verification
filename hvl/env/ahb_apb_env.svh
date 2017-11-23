@@ -20,4 +20,7 @@ function void ahb_apb_env::build_phase(uvm_phase phase);
 	super.build_phase(phase);
 	
 	master_agent_h= ahb_master_agent::type_id::create("master_agent_h", this);
+	
+	slave_agent_h= apb_slave_Agent::type_id::create("slave_agent_h", this);
+	
 endfunction
