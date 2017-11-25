@@ -1,4 +1,7 @@
 `include "uvm_macros.svh"
+`include "ahb_apb_bridge_pkg.sv"
+
+import uvm_pkg::*;
 
 module testbench_top();
 	initial begin
