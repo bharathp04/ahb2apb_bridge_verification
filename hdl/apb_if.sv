@@ -43,30 +43,18 @@ interface apb_if;
 		
 	endtask
 	
-	task apb_slave_monitor(output logic [2:0] pprot,
-							logic psel,
-							logic penable,
-							logic pwrite,
-							logic [PDATA_SIZE/8-1:0] pstrb,
+	task apb_slave_monitor(output logic pwrite,
 							logic [PDATA_SIZE  -1:0] paddr,
 							logic [PDATA_SIZE  -1:0] pwdata,
 							logic [PDATA_SIZE  -1:0] prdata,
-							logic pready,
 							logic pslverr
 	);
 
 		@(posedge PCLK);
 		
 		if(PRESETn) begin
-			pprot<= PPROT;
-			psel<= PSEL;
-			penable<= PENABLE;
 			pwrite<= PWRITE;
-			pstrb<= PSTRB;
 			paddr<= PADDR;
-			pwdata<= PWDATA;
-			prdata<= PRDATA;
-			pready<= PREADY;
 			pslverr<= PSLVERR;
 			if(pwrite) begin
 				pwdata<= PWDATA;

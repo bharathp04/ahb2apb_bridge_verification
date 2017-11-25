@@ -33,19 +33,12 @@ endfunction: build_phase
 
 task apb_slave_driver::run_phase(uvm_phase phase);
 	apb_slave_transaction txn;
-	
-	@(this.vif.PCLK);
 	//first get an item from sequencer
-	seq_item_port.get_next_item(txn);
-	@(this.vif.PCLK);
+	seq_item_port.get(txn);
 	uvm_report_info("APB_DRIVER",$psprint("Got Transaction %s",txn.convert2string()));
-	//Decode the APB command and call either read or write task
-	case (txn.apb_cmd)
-		apb_slave_transaction::Read: apb_slave_monitor(txn.pprot, txn.psel, txn.penable, 	txn.pwrite,txn.[PDATA_SIZE/8-1:0] pstrb,txn.[PDATA_SIZE  -1:0] paddr,
-			txn.[PDATA_SIZE  -1:0] pwdata,txn.[PDATA_SIZE  -1:0] prdata,txn.pready,
-			txn.pslverr);
-			
-		apb_slave_transaction::Write: apb_slave_driver(txn.prdata,txn.pready,txn.pslverr);
-		
+	
+	forever begin
+		apb_slave_driver(txn.PRDATA, txn.PREADY, txn.PSLVERR);
 	end
+	
 endtask: run_phase

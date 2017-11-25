@@ -29,20 +29,17 @@ function void apb_slave_monitor::build_phase(uvm_phase phase);
 	//Get virtual interface from parent
 	assert(uvm_config_db #(ahb_apb_config)::get(this, "", "iface_config", iface_config));
 	
-	vif= iface_config.ahb_vif;
+	vif= iface_config.apb_vif;
 endfunction
-/*
+
 task apb_slave_monitor::run_phase(uvm_phase phase);
-	ahb_master_transaction txn;
-	txn= ahb_master_transaction::type_id::create("txn", this);
-	txn.HTRANS= new[1];
-	txn.HADDR= new[1];
-	txn.HWDATA= new[1];
+	apb_slave_transaction txn;
+	txn= apb_slave_transaction::type_id::create("txn", this);
+	
 	
 	forever begin
-		vif.apb_slave_monitor(txn.HTRANS[1], txn.HBURST, txn.HSIZE, txn.HWRITE, txn.HADDR[1], txn.HWDATA[1], txn.HRDATA);
+		vif.apb_slave_monitor(txn.PWRITE, txn.PADDR, txn.PWDATA, txn.PRDATA, txn.PSLVERR);
 		//Send txn to subscribers
 		monitor_ap.write(txn);
 	end
 endtask
-*/
