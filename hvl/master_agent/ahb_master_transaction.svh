@@ -7,6 +7,7 @@ class ahb_master_transaction extends uvm_sequence_item;
 	rand trans_type_t HTRANS[];
 	rand logic [HADDR_SIZE-1:0]HADDR[];
 	rand logic [HDATA_SIZE-1:0]HWDATA[];
+	logic [HDATA_SIZE-1:0]HRDATA;
 	rand rw_t HWRITE;
 	rand size_t HSIZE;
 	rand burst_type_t HBURST;

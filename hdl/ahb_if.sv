@@ -1,4 +1,4 @@
-import ahb3lite_pkg::*;
+`include "ahb_apb_bridge_pkg.sv"
 
 interface ahb_if;
 	logic HRESETn;
@@ -17,10 +17,10 @@ interface ahb_if;
 	logic HREADY;
 	logic HRESP;
 	
-	task ahb_master_driver(input logic [2:0]trans_type,
-		logic [2:0]burst_type,
-		logic [2:0]trans_size,
-		logic rw,
+	task ahb_master_driver(input trans_type_t trans_type,
+		burst_type_t burst_type,
+		size_t trans_size,
+		rw_t rw,
 		logic [HADDR_SIZE-1:0]addr,
 		logic [HADDR_SIZE-1:0]wdata
 	);
@@ -61,10 +61,10 @@ interface ahb_if;
 	endtask
 	
 	
-	task ahb_master_monitor(output logic [2:0]trans_type,
-		logic [2:0]burst_type,
-		logic [2:0]trans_size,
-		logic rw,
+	task ahb_master_monitor(output trans_type_t trans_type,
+		burst_type_t burst_type,
+		size_t trans_size,
+		rw_t rw,
 		logic [HADDR_SIZE-1:0]addr,
 		logic [HADDR_SIZE-1:0]wdata,
 		logic [HADDR_SIZE-1:0]rdata
@@ -73,10 +73,14 @@ interface ahb_if;
 		@(posedge HCLK);
 		
 		if(HRESETn) begin
-			trans_type<= HTRANS;
-			burst_type<= HBURST;
-			trans_size<= HSIZE;
-			rw<= HWRITE;
+			//trans_type<= HTRANS;
+			//burst_type<= HBURST;
+			//trans_size<= HSIZE;
+			//rw<= HWRITE;
+			$cast(trans_type, HTRANS);
+			$cast(burst_type, HBURST);
+			$cast(trans_size, HSIZE);
+			$cast(rw, HWRITE);
 			addr<= HADDR;
 			if(rw) begin
 				wdata<= HWDATA;

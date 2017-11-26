@@ -1,4 +1,4 @@
-import ahb3lite_pkg::*;
+`include "ahb_apb_bridge_pkg.sv"
 
 interface apb_if;
 	logic PRESETn;
@@ -28,7 +28,7 @@ interface apb_if;
 			PSLVERR<=0;
 			PADDR<=0;
 			PWDATA<=0;
-	
+		end
 		//Drive transaction to Master
 		else begin
 			$display("APB Master: Driving transaction to Master...");

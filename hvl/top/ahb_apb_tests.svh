@@ -9,8 +9,8 @@ class ahb_apb_base_test extends uvm_test;
 		super.new(name, parent);
 	endfunction
 	
-	function build_phase(uvm_phase phase);
-		env= ahb_apb_env::type_id::create("env", this);
+	function void build_phase(uvm_phase phase);
+		iface_config= new();
 		
 		//Get ahb and apb virtual interface 
 		assert(uvm_config_db #(virtual ahb_if)::get(this, "", "ahb_iface", iface_config.ahb_vif))
@@ -24,15 +24,17 @@ class ahb_apb_base_test extends uvm_test;
 		end
 		
 		//Send vif to driver and monitor
-		assert(uvm_config_db #(ahb_apb_config)::get(this, "*", "iface_config", iface_config));
+		uvm_config_db #(ahb_apb_config)::set(this, "*", "iface_config", iface_config);
+		
+		env= ahb_apb_env::type_id::create("env", this);
 		
 	endfunction
 	
 	//Default sequencer. If you need to change the sequencer override this function
 	//in child tests
 	function void default_seqr(ahb_apb_vseq_base vseq);
-		vseq.a_sequencer= env.ahb_master_agent.m_sequencer;
-		vseq.b_sequencer= env.ahb_slave_agent.m_sequencer;
+		vseq.a_sequencer= env.master_agent_h.sequencer_h;
+		vseq.b_sequencer= env.slave_agent_h.sequencer_h;
 	endfunction
 	
 endclass

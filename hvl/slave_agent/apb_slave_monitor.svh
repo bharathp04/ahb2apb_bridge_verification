@@ -2,7 +2,7 @@ class apb_slave_monitor extends uvm_monitor;
 	`uvm_component_utils(apb_slave_monitor)
 	
 	//Declare analysis port to send txn to scoreboard
-	uvm_analysis_port #(apb_slave_transaction) monitor_ap;
+	//uvm_analysis_port #(apb_slave_transaction) monitor_ap;
 	
 	//Declare config class which has the virtual interface and optional other
 	//dut info
@@ -24,7 +24,7 @@ endfunction
 function void apb_slave_monitor::build_phase(uvm_phase phase);
 	super.build_phase(phase);
 	
-	monitor_ap= new("monitor_ap", this);
+	//monitor_ap= new("monitor_ap", this);
 	
 	//Get virtual interface from parent
 	assert(uvm_config_db #(ahb_apb_config)::get(this, "", "iface_config", iface_config));
@@ -40,6 +40,6 @@ task apb_slave_monitor::run_phase(uvm_phase phase);
 	forever begin
 		vif.apb_slave_monitor(txn.PWRITE, txn.PADDR, txn.PWDATA, txn.PRDATA, txn.PSLVERR);
 		//Send txn to subscribers
-		monitor_ap.write(txn);
+		//monitor_ap.write(txn);
 	end
 endtask

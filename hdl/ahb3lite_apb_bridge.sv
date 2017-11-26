@@ -1,3 +1,5 @@
+`include "ahb_apb_bridge_pkg.sv"
+
 module ahb3lite_apb_bridge #(
   parameter HADDR_SIZE = 32,
   parameter HDATA_SIZE = 32,
@@ -7,9 +9,9 @@ module ahb3lite_apb_bridge #(
 )
 (
 
-	ahb_if ahb_iface;
-	apb_if apb_iface;
-	
+	ahb_if ahb_iface,
+	apb_if apb_iface
+);
   ////AHB Slave Interface
   //input                         ahb_iface.HRESETn,
   //                              ahb_iface.HCLK,
@@ -40,12 +42,10 @@ module ahb3lite_apb_bridge #(
   //input      [PDATA_SIZE  -1:0] apb_iface.PRDATA,
   //input                         apb_iface.PREADY,
   //input                         apb_iface.PSLVERR
-);
   //////////////////////////////////////////////////////////////////
   //
   // Constants
   //
-  import ahb3lite_pkg::*;
 
   typedef enum logic [1:0] {ST_AHB_IDLE=2'b00, ST_AHB_TRANSFER=2'b01, ST_AHB_ERROR=2'b10} ahb_fsm_states;
   typedef enum logic [1:0] {ST_APB_IDLE=2'b00, ST_APB_SETUP=2'b01, ST_APB_TRANSFER=2'b10} apb_fsm_states;

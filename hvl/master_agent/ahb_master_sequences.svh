@@ -1,11 +1,12 @@
 class ahb_master_idle_seq extends uvm_sequence #(ahb_master_transaction);
 	`uvm_object_utils(ahb_master_idle_seq)
 	
-	function new(string name);
+	function new(string name= "");
 		super.new(name);
 	endfunction
 	
 	task body();
+		ahb_master_transaction txn;
 		txn= ahb_master_transaction::type_id::create("txn");
 		start_item(txn);
 		assert(txn.randomize() with {HBURST == SINGLE; HTRANS[0] == IDLE;});
@@ -16,11 +17,12 @@ endclass
 class ahb_master_wrap_seq extends uvm_sequence #(ahb_master_transaction);
 	`uvm_object_utils(ahb_master_wrap_seq)
 	
-	function new(string name);
+	function new(string name= "");
 		super.new(name);
 	endfunction
 	
 	task body();
+		ahb_master_transaction txn;
 		txn= ahb_master_transaction::type_id::create("txn");
 		start_item(txn);
 		assert(txn.randomize() with {HBURST inside{WRAP4, WRAP8, WRAP16};});
@@ -32,11 +34,12 @@ endclass
 class ahb_master_incr_seq extends uvm_sequence #(ahb_master_transaction);
 	`uvm_object_utils(ahb_master_incr_seq)
 	
-	function new(string name);
+	function new(string name= "");
 		super.new(name);
 	endfunction
 	
 	task body();
+		ahb_master_transaction txn;
 		txn= ahb_master_transaction::type_id::create("txn");
 		start_item(txn);
 		assert(txn.randomize() with {HBURST inside{INCR4, INCR8, INCR16};});

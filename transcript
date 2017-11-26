@@ -1,0 +1,29 @@
+# vsim +UVM_TESTNAME=ahb_apb_incr_test +tbxrun+velrunquesta -do "run -all" -c hdl_top testbench_top 
+# Start time: 23:18:00 on Nov 25,2017
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# //  Questa Sim
+# //  Version 10.3 linux Jan  6 2014
+# //
+# //  Copyright 1991-2014 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND PROPRIETARY INFORMATION
+# //  WHICH IS THE PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS
+# //  LICENSORS AND IS SUBJECT TO LICENSE TERMS.
+# //
+# Loading sv_std.std
+# Loading work.uvm_pkg(fast)
+# Loading work.ahb_apb_bridge_pkg(fast)
+# Loading work.ahb3lite_apb_bridge_sv_unit(fast)
+# Loading work.hdl_top(fast)
+# Loading work.testbench_top(fast)
+# Loading work.questa_uvm_pkg(fast)
+# Loading work.ahb_if(fast)
+# Loading work.apb_if(fast)
+# ** Error: (vsim-3978) hvl/master_agent/ahb_master_agent.svh(33): Illegal assignment to class work.uvm_pkg::uvm_port_base #(class work.uvm_pkg::uvm_sqr_if_base #(class work.ahb_apb_bridge_pkg::ahb_master_transaction, class work.ahb_apb_bridge_pkg::ahb_master_transaction)) from class work.uvm_pkg::uvm_seq_item_pull_imp #(class work.uvm_pkg::uvm_sequence_item, class work.uvm_pkg::uvm_sequence_item, class work.uvm_pkg::uvm_sequencer #(class work.uvm_pkg::uvm_sequence_item, class work.uvm_pkg::uvm_sequence_item))
+#    Time: 0 ns  Iteration: 0  Region: /ahb_apb_bridge_pkg File: hvl/top/ahb_apb_bridge_pkg.sv
+# ** Error: (vsim-8754) hvl/master_agent/ahb_master_agent.svh(33): Actual input arg. of type 'class work.uvm_pkg::uvm_seq_item_pull_imp #(class work.uvm_pkg::uvm_sequence_item, class work.uvm_pkg::uvm_sequence_item, class work.uvm_pkg::uvm_sequencer #(class work.uvm_pkg::uvm_sequence_item, class work.uvm_pkg::uvm_sequence_item))' for formal 'provider' of 'connect' is not compatible with the formal's type 'class work.uvm_pkg::uvm_port_base #(class work.uvm_pkg::uvm_sqr_if_base #(class work.ahb_apb_bridge_pkg::ahb_master_transaction, class work.ahb_apb_bridge_pkg::ahb_master_transaction))'.
+#         Region: /ahb_apb_bridge_pkg
+# Error loading design
+# End time: 23:18:06 on Nov 25,2017
+# Errors: 1, Warnings: 0

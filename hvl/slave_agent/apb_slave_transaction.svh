@@ -16,7 +16,7 @@ class apb_slave_transaction extends uvm_sequence_item;
 	endfunction
 	
 	function string convert2string();
-		return $psprintf("PDATA= %0h, PREADY= %0b, PSLVERR= %0b", PDATA, PREADY, PSLVERR);
+		return $psprintf("PRDATA= %0h, PREADY= %0b, PSLVERR= %0b", PRDATA, PREADY, PSLVERR);
    endfunction
 
-endclass: ahb_master_transaction
+endclass: apb_slave_transaction

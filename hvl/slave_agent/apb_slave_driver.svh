@@ -35,10 +35,10 @@ task apb_slave_driver::run_phase(uvm_phase phase);
 	apb_slave_transaction txn;
 	//first get an item from sequencer
 	seq_item_port.get(txn);
-	uvm_report_info("APB_DRIVER",$psprint("Got Transaction %s",txn.convert2string()));
+	//uvm_report_info("APB_DRIVER",$psprint("Got Transaction %s",txn.convert2string()));
 	
 	forever begin
-		apb_slave_driver(txn.PRDATA, txn.PREADY, txn.PSLVERR);
+		vif.apb_slave_driver(txn.PRDATA, txn.PREADY, txn.PSLVERR);
 	end
 	
 endtask: run_phase
