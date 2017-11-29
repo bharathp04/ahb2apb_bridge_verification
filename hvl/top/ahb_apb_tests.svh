@@ -50,7 +50,7 @@ class ahb_apb_incr_test extends ahb_apb_base_test;
 	
 	task run_phase(uvm_phase phase);
 		ahb_apb_incr_vseq vseq;
-		vseq= ahb_apb_incr_vseq::type_id::create("vseq", this);
+		vseq= ahb_apb_incr_vseq::type_id::create("vseq");
 		
 		phase.raise_objection(this);
 		default_seqr(vseq);
@@ -72,13 +72,16 @@ class ahb_apb_wrap_test extends ahb_apb_base_test;
 	
 	task run_phase(uvm_phase phase);
 		ahb_apb_wrap_vseq vseq;
-		vseq= ahb_apb_wrap_vseq::type_id::create("vseq", this);
+		vseq= ahb_apb_wrap_vseq::type_id::create("vseq");
 		
 		phase.raise_objection(this);
 		default_seqr(vseq);
 		
-		//Virtual sequence doesn't run on any sequencer
-		vseq.start(null);
+		repeat(3000000) begin
+			
+			//Virtual sequence doesn't run on any sequencer
+			vseq.start(null);
+		end
 		phase.drop_objection(this);
 	endtask
 

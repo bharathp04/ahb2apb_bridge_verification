@@ -1,8 +1,9 @@
 `include "ahb_apb_bridge_pkg.sv"
 
-interface apb_if;
-	logic PRESETn;
-	logic PCLK;
+interface apb_if(input logic PCLK,
+	input logic PRESETn);
+	//pragma attribute apb_if partition_interface_xif
+
 	logic PSEL;
 	logic PENABLE;
 	logic [2:0] PPROT;
@@ -18,25 +19,26 @@ interface apb_if;
 							logic pready,
 							logic pslverr
 	);
-
+		//pragma tbx xtf
+		
 		@(posedge PCLK);
 
 		if(!PRESETn) begin
-			$display("APB Slave: Reset Detected....");
+			//$display("APB Slave: Reset Detected....");
 			PRDATA<= 0;
 			PREADY<= 0;
 			PSLVERR<=0;
-			PADDR<=0;
-			PWDATA<=0;
 		end
 		//Drive transaction to Master
 		else begin
-			$display("APB Master: Driving transaction to Master...");
+			//$display("APB Slave: Driving transaction to Master...");
 			PREADY<= pready;;
 			PSLVERR<= pslverr;
 
 			//Drive rdata when slave is ready to send
-			if(!PWRITE && PENABLE && PREADY) begin
+			while(!PENABLE) @(posedge PCLK);
+			
+			if(!PWRITE && pready && PSEL) begin
 				PRDATA<= prdata;				
 			end
 		end
@@ -49,7 +51,8 @@ interface apb_if;
 							logic [PDATA_SIZE  -1:0] prdata,
 							logic pslverr
 	);
-
+		//pragma tbx xtf
+		
 		@(posedge PCLK);
 		
 		if(PRESETn) begin

@@ -34,11 +34,12 @@ task ahb_master_driver::run_phase(uvm_phase phase);
 	ahb_master_transaction txn;
 	
 	forever begin
-		seq_item_port.get(txn);
+		seq_item_port.get_next_item(txn);
 		foreach(txn.HADDR[i]) begin
 			//Call task from interface
+			//$display("ahb_master_driver: txn.HBURST= %0d, txn.HADDR= %0h", txn.HBURST, txn.HADDR[i]);
 			vif.ahb_master_driver(txn.HTRANS[i], txn.HBURST, txn.HSIZE, txn.HWRITE, txn.HADDR[i], txn.HWDATA[i]);
 		end
-		
+		seq_item_port.item_done();
 	end
 endtask: run_phase

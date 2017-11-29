@@ -26,6 +26,7 @@ class ahb_master_wrap_seq extends uvm_sequence #(ahb_master_transaction);
 		txn= ahb_master_transaction::type_id::create("txn");
 		start_item(txn);
 		assert(txn.randomize() with {HBURST inside{WRAP4, WRAP8, WRAP16};});
+		//$display("ahb_master_wrap_seq: txn.HBURST= %0d, txn.HADDR.size= %0d", txn.HBURST, txn.HADDR.size);
 		finish_item(txn);
 	endtask
 	

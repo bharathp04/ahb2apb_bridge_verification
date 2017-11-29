@@ -37,7 +37,17 @@ class ahb_master_transaction extends uvm_sequence_item;
 		HWDATA.size == HADDR.size;
 	}
 	
-	//Add kb_boundary constraint
+	//kb_boundary constraint
+	constraint kb_boundry {
+		if(HBURST == 1)
+			HADDR[0][10:0] <= (1024 - ((HADDR.size)*(2**HSIZE)));
+		if((HBURST == 2) || (HBURST == 3))
+			HADDR[0][10:0] <= (1024 - 4*(2**HSIZE));
+		if((HBURST == 4) || (HBURST == 5))
+			HADDR[0][10:0] <= (1024 - 8*(2**HSIZE));
+		if((HBURST == 6) || (HBURST == 7))
+			HADDR[0][10:0] <= (1024 - 16*(2**HSIZE));
+	}
 	
 	constraint addr_boundary{
 		if(HSIZE == HALFWORD)

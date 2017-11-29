@@ -7,21 +7,31 @@ HDL_TOP= hdl_top
 HVL_TOP= testbench_top
 HDL= hdl/*.sv
 HVL= hvl/top/testbench_top.sv
-PKG= hvl/top/ahb_apb_bridge_pkg.sv
-UVM_HOME= /pkgs/mentor/questa/10.3/questasim/verilog_src/uvm-1.1d/src
-QUESTA_HOME= /pkgs/mentor/questa/10.3/questasim
+HDL_PKG= hdl/ahb_apb_bridge_pkg.sv
+HVL_PKG= hvl/top/ahb_apb_uvm_include_pkg.sv
 WORK= work
 INC= +incdir+hvl/env +incdir+hvl/master_agent +incdir+hvl/slave_agent +incdir+hvl/top 
-UVM_INC= +incdir+/pkgs/mentor/questa/10.3/questasim/verilog_src/uvm-1.1d/src
+MODE= veloce
 
 lib:
 	vlib $(WORK)
 	vmap work $(WORK)
 	
 build:
-	vlog -mfcu -work $(WORK) $(UVM_INC) $(UVM_HOME)/uvm_pkg.sv $(UVM_HOME)/dpi/uvm_dpi.cc $(QUESTA_HOME)/verilog_src/questa_uvm_pkg-1.2/src/questa_uvm_pkg.sv
-	vlog -mfcu -work $(WORK) $(UVM_INC) $(INC) $(HDL) $(PKG) $(HVL)
+	vlog -mfcu -work $(WORK) $(INC) $(HDL) $(HDL_PKG) $(HVL_PKG) $(HVL)
+ifeq ($(MODE),puresim)
+	velhvl -sim $(MODE)
+else 
+	velanalyze -mfcu -work $(WORK) $(HDL) $(HDL_PKG)
+	velcomp -top hdl_top
+	velhvl -sim $(MODE)
+endif
 	
 ahb_apb_incr_test:
-	vsim -c $(HDL_TOP) $(HVL_TOP) -do "run -all" +UVM_TESTNAME=ahb_apb_incr_test +tbxrun+velrunquesta
+	vsim -c $(HDL_TOP) $(HVL_TOP) -do "run -all; simstats" +UVM_TESTNAME=ahb_apb_incr_test
 	
+ahb_apb_wrap_test:
+	vsim -c $(HDL_TOP) $(HVL_TOP) -do "run -all; simstats" +UVM_TESTNAME=ahb_apb_wrap_test
+	
+clean:
+	rm -rf tbxbindings.h modelsim.ini transcript.veloce transcript.puresim work work.puresim work.veloce transcript vsim.wlf *.log dgs.dbg dmslogdir veloce.med veloce.wave veloce.map velrunopts.ini edsenv

@@ -1,5 +1,5 @@
-typedef uvm_sequencer #(uvm_sequence_item) a_sequencer_t;
-typedef uvm_sequencer #(uvm_sequence_item) b_sequencer_t;
+typedef uvm_sequencer #(ahb_master_transaction) a_sequencer_t;
+typedef uvm_sequencer #(apb_slave_transaction) b_sequencer_t;
 
 class ahb_apb_vseq_base extends uvm_sequence #(uvm_sequence_item);
 	`uvm_object_utils(ahb_apb_vseq_base)

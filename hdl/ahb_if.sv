@@ -1,8 +1,9 @@
 `include "ahb_apb_bridge_pkg.sv"
 
-interface ahb_if;
-	logic HRESETn;
-	logic HCLK;
+interface ahb_if(input logic HCLK,
+	input logic HRESETn);
+	//pragma attribute ahb_if partition_interface_xif
+
 	logic HSEL;
 	logic [HADDR_SIZE-1:0]HADDR;
 	logic [HDATA_SIZE-1:0]HWDATA;
@@ -17,6 +18,10 @@ interface ahb_if;
 	logic HREADY;
 	logic HRESP;
 	
+	assign HSEL= 1;
+	assign HPROT= 4'b0011;
+	assign HREADY= HREADYOUT;
+	
 	task ahb_master_driver(input trans_type_t trans_type,
 		burst_type_t burst_type,
 		size_t trans_size,
@@ -24,12 +29,12 @@ interface ahb_if;
 		logic [HADDR_SIZE-1:0]addr,
 		logic [HADDR_SIZE-1:0]wdata
 	);
-		
+		//pragma tbx xtf
 		@(posedge HCLK);
 		
 		//Handle reset
 		if(!HRESETn) begin
-			$display("AHB Master: Reset Detected...");
+			//$display("AHB Master: Reset Detected...");
 			HTRANS<= 0;
 			HBURST<= 0;
 			HSIZE<= 0;
@@ -40,12 +45,12 @@ interface ahb_if;
 		
 		//Handle response from slave
 		else if(HRESP == 1) begin
-			$display("AHB Master: Error response from slave...");
+			//$display("AHB Master: Error response from slave...");
 		end
 		
 		//Drive transaction to slave
 		else begin
-			$display("AHB Master: Driving transaction to slave...");
+			//$display("AHB Master: Driving transaction to slave...");
 			HTRANS<= trans_type;
 			HBURST<= burst_type;
 			HSIZE<= trans_size;
@@ -69,6 +74,7 @@ interface ahb_if;
 		logic [HADDR_SIZE-1:0]wdata,
 		logic [HADDR_SIZE-1:0]rdata
 	);
+		//pragma tbx xtf
 		
 		@(posedge HCLK);
 		
