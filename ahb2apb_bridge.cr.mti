@@ -1,15 +1,4 @@
-/u/bharath2/project/ahb2apb_bridge_verification/hdl/apb_if.sv {1 {vlog -nostats -work work -vopt -sv /u/bharath2/project/ahb2apb_bridge_verification/hdl/apb_if.sv
-QuestaSim vlog 10.3 Compiler 2014.01 Jan  6 2014
--- Compiling package ahb_apb_bridge_pkg
--- Compiling interface apb_if
--- Compiling package apb_if_sv_unit
--- Importing package ahb_apb_bridge_pkg
--- Compiling interface apb_if
-
-Top level modules:
-	--none--
-
-} {} {}} /u/bharath2/project/ahb2apb_bridge_verification/hvl/slave_agent/apb_slave_driver.svh {0 {vlog -nostats -work work -vopt -sv /u/bharath2/project/ahb2apb_bridge_verification/hvl/slave_agent/apb_slave_driver.svh
+/u/bharath2/project/ahb2apb_bridge_verification/hvl/slave_agent/apb_slave_driver.svh {0 {vlog -nostats -work work -vopt -sv /u/bharath2/project/ahb2apb_bridge_verification/hvl/slave_agent/apb_slave_driver.svh
 QuestaSim vlog 10.3 Compiler 2014.01 Jan  6 2014
 ** Error: /u/bharath2/project/ahb2apb_bridge_verification/hvl/slave_agent/apb_slave_driver.svh(1): near "uvm_driver": syntax error, unexpected IDENTIFIER
 ** Error: /u/bharath2/project/ahb2apb_bridge_verification/hvl/slave_agent/apb_slave_driver.svh(1): Error in class extension specification.

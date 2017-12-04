@@ -77,7 +77,7 @@ class ahb_apb_wrap_test extends ahb_apb_base_test;
 		phase.raise_objection(this);
 		default_seqr(vseq);
 		
-		repeat(3000000) begin
+		repeat(30000) begin
 			
 			//Virtual sequence doesn't run on any sequencer
 			vseq.start(null);
